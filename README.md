@@ -2,7 +2,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J81VHA2)
 
-# !!! WARNING !!!
+# ⚠️ WARNING ⚠️
 
 This extension was made for developers! If someone ever asks you to install this extension and run any code they send you, **DON'T**. There are no safety checks in place, and malicious code can be ran without restriction.
 
@@ -23,3 +23,5 @@ Any Javascript code entered is executed using `eval` and gives full access to al
 # Installation
 
 Open your A1111 Web UI and go to `Extensions > Install from URL`. Paste in the link to this repo (`https://github.com/SenshiSentou/sd-webui-qic-console.git`), click `Install` and restart the web ui.
+
+Make sure to launch the UI with the `--allow-code` flag enabled.
