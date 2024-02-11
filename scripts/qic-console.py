@@ -7,7 +7,12 @@ import gradio as gr
 from modules import script_callbacks, shared
 from modules.ui_components import ResizeHandleRow
 
+
 def execute(code):
+    if not shared.cmd_opts.allow_code:
+        gr.Warning('--allow-code option must be enabled')
+        return 'Command Line Arg --allow-code must be enabled.'
+
     io = StringIO()
     
     with redirect_stdout(io):
@@ -22,6 +27,7 @@ def execute(code):
 
     return io.getvalue()
 
+
 def create_code_tab(language, input_default, output_default, lines):
     with gr.Tab(language.capitalize(), elem_id=f"qic-{language}-tab"):
         with gr.Row(), ResizeHandleRow(equal_height=False):
@@ -34,8 +40,15 @@ def create_code_tab(language, input_default, output_default, lines):
         
         if language == "python":
             btn.click(fn=execute, inputs=inp, outputs=out)
+            if not shared.opts.qic_hide_warning:
+                gr.Markdown("""# !!! WARNING !!!
+This extension was made for developers! If someone ever asks you to install this extension and run any code they send you, **DON'T**.
+There are no safety checks in place, and malicious code can be ran without restriction.
+Command Line Arg `--allow-code` must be enabled in order to execute python code.
+This warning message can be hidden in `Settings > QIC Console > Hide QIC console warning message`""")
         else:
             btn.click(fn=lambda x: x, _js="qic.execute", inputs=inp, outputs=out)
+
 
 def on_ui_tabs():
     with gr.Blocks(elem_id="qic-root", analytics_enabled=False) as ui_component:
@@ -44,16 +57,19 @@ def on_ui_tabs():
 
         return [(ui_component, "QIC Console", "qic-console")]
 
+
 def on_ui_settings():
-    settings_section = ('qic-console', "QIC Console");
+    settings_section = ('qic-console', "QIC Console")
     options = {
         "qic_use_syntax_highlighting_python_output": shared.OptionInfo(True, "Use syntax highlighting on Python output console", gr.Checkbox),
         "qic_use_syntax_highlighting_javascript_output": shared.OptionInfo(True, "Use syntax highlighting on Javascript output console", gr.Checkbox),
+        "qic_hide_warning": shared.OptionInfo(False, "Hide QIC console warning message", gr.Checkbox).needs_reload_ui(),
     }
 
     for name, opt in options.items():
         opt.section = settings_section
         shared.opts.add_option(name, opt)
+
 
 script_callbacks.on_ui_tabs(on_ui_tabs)
 script_callbacks.on_ui_settings(on_ui_settings)
